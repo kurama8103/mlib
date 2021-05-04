@@ -138,14 +138,14 @@ def geometric_brownian_motion(S0=100, T=1.0, r=0.05, sigma=0.2, I=100):
     return ST.mean()
 
 
-def plot121(x1, x2):
+'''def plot121(x1, x2):
     fig = plt.figure(figsize=(12, 3))
     ax1 = fig.add_subplot(121)
     ax1.xaxis.set_major_formatter(mdates.DateFormatter('%y/%m'))
     ax1.plot(x1)
     ax2 = fig.add_subplot(122)
     ax2.xaxis.set_major_formatter(mdates.DateFormatter('%y/%m'))
-    ax2.plot(x2)
+    ax2.plot(x2)'''
 
 
 def acf_plot(ts):
@@ -262,3 +262,40 @@ def filter_IIR_Butterworth_plot(df, dimention=1):
     plt.plot(df.index, df, lw=.5, label='value')
     plt.plot(df.index, sg.filtfilt(d, c, df), label='high')
     plt.legend()
+
+
+import lightgbm as lgb
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+class quick_LightGBM:
+    def __init__(self,train,target,params):
+        self.train=train
+        self.target=target
+        self.params=params
+        self.train_lgb = lgb.Dataset(self.train,self.target)
+        #validation_data = lgb.Dataset(df_test, reference=train_data)
+
+    def train_model(self):
+        self.model = lgb.train(    
+            self.params,
+            self.train_lgb,
+            num_boost_round=100,
+            verbose_eval=10,
+            #early_stopping_rounds=5,
+            #valid_sets=validation_data,
+            )
+
+        self._pred=self.model.predict(self.train,num_iteration=self.model.best_iteration)
+        self.pred_max = np.argmax(self._pred, axis=1) 
+    
+    def confusion_matrix(self):
+        return confusion_matrix(self.pred_max,self.target)
+
+    def plot_importance(self):
+        return lgb.plot_importance(self.model)
+
+    def feature_importance(self):
+        return pd.DataFrame({
+            'name':self.train.columns,
+            'value':np.array(self.model.feature_importance())
+            })
