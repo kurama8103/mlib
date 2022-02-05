@@ -299,3 +299,36 @@ class quick_LightGBM:
             'name':self.train.columns,
             'value':np.array(self.model.feature_importance())
             })
+    
+def getEndOfMonth(df):
+    df=df.sort_index()
+    return df[(pd.Series(df.index.month.values).diff(-1) != 0).values]
+
+def high_water_mark(price_index, window=None):
+    if window is None:
+        window=len(price_index)
+    return price_index.rolling(window, min_periods=1).max()
+
+
+def max_draw_down(price_index, window=None):
+    if window is None:
+        window=len(price_index)
+    return price_index/high_water_mark(price_index, window)-1
+
+
+def decompose(return_index:pd.Series,period=20)->pd.DataFrame:
+        dcp=sm.tsa.seasonal_decompose(
+            return_index.dropna(), period=period,two_sided=False)
+        return pd.DataFrame({
+            'dcp_trend':dcp.trend,
+            'dcp_seasonal':dcp.seasonal,
+            'dcp_resid':dcp.resid,
+        })
+
+def acfs(return_pct, nlags=10):
+    return pd.concat([
+        return_pct.apply(lambda x: sm.tsa.stattools.acf(x.dropna(), nlags=nlags)),
+        return_pct.apply(lambda x: sm.tsa.stattools.pacf(x.dropna(), nlags=nlags, 
+                                                         method='ols'))], 
+        axis=0, keys=['acf', 'pacf'])
+        
