@@ -1,14 +1,15 @@
-import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import pymc3 as pm
 import scipy.fftpack as sf
 import scipy.signal as sg
 import scipy.stats as scs
-import pymc3 as pm
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
-from scipy.spatial.distance import euclidean
 from fastdtw import fastdtw
-        
+from scipy.spatial.distance import euclidean
+
+
 def z_normalize(x):
     return (x-x.mean())/x.std()
 
@@ -72,16 +73,16 @@ def hurst(x):
     return poly[0] * 2
 
 
-def high_water_mark(price_index: pd.Series, window=None):
+def high_water_mark(return_index: pd.Series, window=None):
     if window is None:
-        window = len(price_index)
-    return price_index.rolling(window, min_periods=1).max()
+        window = len(return_index)
+    return return_index.rolling(window, min_periods=1).max()
 
 
-def max_draw_down(price_index: pd.Series, window=None):
+def max_draw_down(return_index: pd.Series, window=None):
     if window is None:
-        window = len(price_index)
-    return price_index/high_water_mark(price_index, window)-1
+        window = len(return_index)
+    return return_index/high_water_mark(return_index, window)-1
 
 
 def decompose(return_index, period=20) -> pd.DataFrame:
@@ -127,7 +128,9 @@ def probability_density_function(x):
 
 
 def baysian_regression(x, y):
-    # https://github.com/yhilpisch/py4fi/
+    """
+    https://github.com/yhilpisch/py4fi/
+    """
     with pm.Model() as model:
         alpha = pm.Normal('alpha', mu=0, sd=20)
         beta = pm.Normal('beta', mu=0, sd=20)
