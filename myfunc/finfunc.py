@@ -230,5 +230,5 @@ def sklearn_predict_regression(model, list_feature_target, n_round=2):
     }, index=test.index)
 
 
-def dtw(x,y):
+def dynamic_time_warping(x,y):
     return fastdtw(x, y, dist=euclidean)
