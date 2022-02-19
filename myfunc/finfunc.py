@@ -182,12 +182,12 @@ def filter_finite_impulse_response(df: pd.Series, window=2):
                      index=df.index)
 
 
-def filter_IIR_Butterworth(df: pd.Series, dimention=1):
-    b, a = sg.butter(dimention, 2./365, btype='low')
-    d, c = sg.butter(dimention, 2./365, btype='high')
+def filter_IIR_Butterworth(df: pd.Series, dimension=1):
+    b, a = sg.butter(dimension, 2./365, btype='low')
+    d, c = sg.butter(dimension, 2./365, btype='high')
     return pd.DataFrame({
-        'IIR_low_dim'+str(dimention): sg.filtfilt(b, a, df),
-        'IIR_high_dim'+str(dimention): sg.filtfilt(d, c, df)
+        'IIR_low_dim'+str(dimension): sg.filtfilt(b, a, df),
+        'IIR_high_dim'+str(dimension): sg.filtfilt(d, c, df)
     }, index=df.index)
 
 
