@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pymc3 as pm
 import scipy.fftpack as sf
 import scipy.signal as sg
 import scipy.stats as scs
@@ -60,17 +59,19 @@ def adf_summary(x):
     }
 
 
-def hurst(x):
+def hurst(x, dim=100):
     '''
     H<0.5 : anti-trend (mean-regression)
     H=0.5 : brownian (martingale)
     H>0.5 : trend
     '''
-    lags = range(2, 100)
-    tau = [np.sqrt(np.std(np.subtract(np.array(x[lag:]), np.array(x[:-lag]))))
-           for lag in lags]
-    poly = np.polyfit(np.log(lags), np.log(tau), 1)
-    return poly[0] * 2
+    dim = min(100, len(x)-2)
+    if dim > 3:
+        lags = range(2, dim)
+        tau = [np.sqrt(np.std(np.subtract(np.array(x[lag:]), np.array(x[:-lag]))))
+               for lag in lags]
+        poly = np.polyfit(np.log(lags), np.log(tau), 1)
+        return poly[0] * 2
 
 
 def high_water_mark(return_index: pd.Series, window=None):
@@ -127,29 +128,6 @@ def probability_density_function(x):
     return pd.Series(scs.norm.pdf(n, x.mean(), x.std()), index=n)
 
 
-def baysian_regression(x, y):
-    """
-    https://github.com/yhilpisch/py4fi/
-    """
-    with pm.Model() as model:
-        alpha = pm.Normal('alpha', mu=0, sd=20)
-        beta = pm.Normal('beta', mu=0, sd=20)
-        sigma = pm.Uniform('sigma', lower=0, upper=50)
-
-        y_est = alpha + beta * x
-        likelihood = pm.Normal('x', mu=y_est, sd=sigma, observed=y)
-
-        start = pm.find_MAP()
-        step = pm.NUTS()
-        trace = pm.sample(100, step, start=start, progressbar=False)
-
-        fig = pm.traceplot(trace)
-        plt.figure()
-
-        return pd.DataFrame(
-            [trace[n] for n in trace.varnames], index=trace.varnames).T
-
-
 def fast_Fourier_transform_psd(x):
     temp_fft = sf.fft(x)
     temp_psd = np.abs(temp_fft)**2
@@ -172,6 +150,17 @@ def fast_Fourier_transform(df: pd.Series, freq_cut=5):
     temp_slow = np.real(sf.ifft(temp_fft_bis))
     return pd.Series(temp_slow,
                      name='FFT_freq<='+str(freq_cut), index=df.index)
+
+
+def fast_Fourier_transform_(nda: np.ndarray, freq_cut=5):
+    temp_fft = sf.fft(nda)
+    temp_psd = np.abs(temp_fft)**2
+    fftfreq = sf.fftfreq(len(temp_psd), 1. / 365)
+
+    temp_fft_bis = temp_fft.copy()
+    temp_fft_bis[np.abs(fftfreq) > freq_cut] = 0  # Cut high freq
+    temp_slow = np.real(sf.ifft(temp_fft_bis))
+    return {'FFT_freq<='+str(freq_cut):temp_slow}
 
 
 def filter_finite_impulse_response(df: pd.Series, window=2):
@@ -230,5 +219,5 @@ def sklearn_predict_regression(model, list_feature_target, n_round=2):
     }, index=test.index)
 
 
-def dynamic_time_warping(x,y):
+def dynamic_time_warping(x, y):
     return fastdtw(x, y, dist=euclidean)
