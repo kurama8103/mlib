@@ -10,8 +10,8 @@ def variable_memory(x=dir()):
 
     for var_name in x:
         if not var_name.startswith("_"):
-            memory_df = memory_df.append(pd.DataFrame(
-                [[var_name, sys.getsizeof(eval(var_name))]], columns=mem_cols))
+            memory_df = pd.concat([memory_df, pd.DataFrame(
+                [[var_name, sys.getsizeof(eval(var_name))]], columns=mem_cols)])
 
     memory_df = memory_df.sort_values(
         by='Memory', ascending=False).reset_index(drop=True)
