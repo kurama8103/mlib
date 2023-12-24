@@ -1,29 +1,35 @@
-
 import numpy as np
 import pandas as pd
 import sys
 
 
 def variable_memory(x=dir()):
-    mem_cols = ['Variable Name', 'Memory']
+    mem_cols = ["Variable Name", "Memory"]
     memory_df = pd.DataFrame(columns=mem_cols)
 
     for var_name in x:
         if not var_name.startswith("_"):
-            memory_df = pd.concat([memory_df, pd.DataFrame(
-                [[var_name, sys.getsizeof(eval(var_name))]], columns=mem_cols)])
+            memory_df = pd.concat(
+                [
+                    memory_df,
+                    pd.DataFrame(
+                        [[var_name, sys.getsizeof(eval(var_name))]], columns=mem_cols
+                    ),
+                ]
+            )
 
-    memory_df = memory_df.sort_values(
-        by='Memory', ascending=False).reset_index(drop=True)
+    memory_df = memory_df.sort_values(by="Memory", ascending=False).reset_index(
+        drop=True
+    )
     return memory_df
 
 
 def reduce_mem_usage(df):
-    """ iterate through all the columns of a dataframe and modify the data type
-        to reduce memory usage.        
+    """iterate through all the columns of a dataframe and modify the data type
+    to reduce memory usage.
     """
     start_mem = df.memory_usage().sum() / 1024**2
-    print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
+    print("Memory usage of dataframe is {:.2f} MB".format(start_mem))
 
     for col in df.columns:
         col_type = df[col].dtype
@@ -31,7 +37,7 @@ def reduce_mem_usage(df):
         if col_type != object:
             c_min = df[col].min()
             c_max = df[col].max()
-            if str(col_type)[:3] == 'int':
+            if str(col_type)[:3] == "int":
                 if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
                     df[col] = df[col].astype(np.int8)
                 elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
@@ -41,18 +47,23 @@ def reduce_mem_usage(df):
                 elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
                     df[col] = df[col].astype(np.int64)
             else:
-                if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+                if (
+                    c_min > np.finfo(np.float16).min
+                    and c_max < np.finfo(np.float16).max
+                ):
                     df[col] = df[col].astype(np.float16)
-                elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+                elif (
+                    c_min > np.finfo(np.float32).min
+                    and c_max < np.finfo(np.float32).max
+                ):
                     df[col] = df[col].astype(np.float32)
                 else:
                     df[col] = df[col].astype(np.float64)
         else:
-            df[col] = df[col].astype('category')
+            df[col] = df[col].astype("category")
 
     end_mem = df.memory_usage().sum() / 1024**2
-    print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
-    print('Decreased by {:.1f}%'.format(
-        100 * (start_mem - end_mem) / start_mem))
+    print("Memory usage after optimization is: {:.2f} MB".format(end_mem))
+    print("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
 
     return df
