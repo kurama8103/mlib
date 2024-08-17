@@ -51,8 +51,8 @@ def acf_plot(x, lags: int = 30):
     )
 
 
-def adf_summary(x) -> dict:
-    tsa = sm.tsa.adfuller(x, regression="nc")
+def adf_summary(x, regression: str = "ct") -> dict:
+    tsa = sm.tsa.adfuller(x, regression=regression)
     return {
         "adf": tsa[0],
         "pvalue": tsa[1],
@@ -78,28 +78,33 @@ def hurst(x, window: int = 100) -> tuple:
     """
     # https://github.com/Mottl/hurst/blob/master/hurst/__init__.py
 
-    window = list((10 ** np.arange(1, np.log10(window + 1), 0.25)).astype(int))
-    window.append(len(x))
+    window = min(window, len(x))
+    windows = list((10 ** np.arange(1, np.log10(window + 1), 0.25)).astype(int))
+    windows.append(len(x))
 
     RS = []
-    for w in window:
+    for w in windows:
         _ = [RS_func(x[i : i + w]) for i in range(0, len(x) - w + 1, w)]
         RS.append(np.mean(_))
 
-    H, C = np.polyfit(np.log10(window), np.log10(RS), 1)
-    return H, 10**C, [window, RS]
+    H, C = np.polyfit(np.log10(windows), np.log10(RS), 1)
+    return H, 10**C, [windows, RS]
 
 
 def high_water_mark(return_index: pd.Series, window: int = None):
     if window is None:
         window = len(return_index)
-    return return_index.rolling(window, min_periods=1).max()
+    df = return_index.rolling(window, min_periods=1).max()
+    df.name = "hwm"
+    return df
 
 
 def max_draw_down(return_index: pd.Series, window: int = None):
     if window is None:
         window = len(return_index)
-    return return_index / high_water_mark(return_index, window) - 1
+    df = return_index / high_water_mark(return_index, window) - 1
+    df.name = "mdd"
+    return df
 
 
 def decompose(return_index, period: int = 20) -> pd.DataFrame:
