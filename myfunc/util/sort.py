@@ -3,11 +3,11 @@ import heapq
 
 
 def merge(a: list, l: int, m: int, r: int) -> list:
-    t = a[l:m]+a[m:r][::-1]
+    t = a[l:m] + a[m:r][::-1]
     n = len(t)
     i = 0
-    j = n-1
-    b = [None]*n
+    j = n - 1
+    b = [None] * n
     for k in range(n):
         if t[i] <= t[j]:
             b[k] = t[i]
@@ -21,8 +21,8 @@ def merge(a: list, l: int, m: int, r: int) -> list:
 def merge_sort(a: list, l: int = 0, r: int = -1) -> list:
     if r == -1:
         r = len(a)
-    if l+1 < r:
-        m = (l+r)//2
+    if l + 1 < r:
+        m = (l + r) // 2
         a = merge_sort(a, l, m)
         a = merge_sort(a, m, r)
         a[l:r] = merge(a, l, m, r)
@@ -31,7 +31,7 @@ def merge_sort(a: list, l: int = 0, r: int = -1) -> list:
 
 
 def partition(a: list, l: int, r: int) -> int:
-    i = l-1
+    i = l - 1
     for j in range(l, r):
         if a[j] < a[r]:
             i += 1
@@ -44,31 +44,31 @@ def partition(a: list, l: int, r: int) -> int:
 
 def quick_sort(a: list, l: int = 0, r: int = -1) -> list:
     if r == -1:
-        r = len(a)-1
+        r = len(a) - 1
     if r > l:
         q = partition(a, l, r)
         print(q, a)
-        quick_sort(a, l, q-1)
-        quick_sort(a, q+1, r)
+        quick_sort(a, l, q - 1)
+        quick_sort(a, q + 1, r)
     return a
 
 
 def bubble_sort(a: list) -> list:
     n = len(a)
-    for i in range(n-1):
-        for j in range(n-1, i, -1):
-            if a[j-1] > a[j]:
-                a[j], a[j-1] = a[j-1], a[j]
-                print((i, j-1), a)
+    for i in range(n - 1):
+        for j in range(n - 1, i, -1):
+            if a[j - 1] > a[j]:
+                a[j], a[j - 1] = a[j - 1], a[j]
+                print((i, j - 1), a)
     return a
 
 
 def selection_sort(a: list) -> list:
     n = len(a)
-    for i in range(n-1):
+    for i in range(n - 1):
         m = idx_min(a[i:n])
-        a[i], a[m+i] = a[m+i], a[i]
-        print((i, m+i), a)
+        a[i], a[m + i] = a[m + i], a[i]
+        print((i, m + i), a)
     return a
 
 
@@ -84,7 +84,7 @@ def idx_min(a: list) -> int:
 def insert_sort(a: list, step: int = 1) -> list:
     for i in range(1, len(a), step):
         t = a.pop(i)
-        for j in range(i-1, -1, -1):
+        for j in range(i - 1, -1, -1):
             if a[j] < t:
                 j += 1
                 break
@@ -95,7 +95,7 @@ def insert_sort(a: list, step: int = 1) -> list:
 
 
 def shell_sort(a: list) -> list:
-    for i in range(len(a)//2, 0, -2):
+    for i in range(len(a) // 2, 0, -2):
         insert_sort(a, i)
     return a
 
@@ -112,8 +112,8 @@ def counting_sort(a: list) -> list:
         t += c[i]
         c[i] = t
 
-    l = [None]*len(a)
-    for i in range(len(a)-1, -1, -1):
+    l = [None] * len(a)
+    for i in range(len(a) - 1, -1, -1):
         x = a[i]
         c[x] -= 1
         l[c[x]] = x

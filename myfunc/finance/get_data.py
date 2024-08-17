@@ -3,7 +3,7 @@ from sqlite3 import connect
 import investpy
 import pandas as pd
 import quandl
-from myfunc.sqls import execute_sql
+from myfunc.util.sqls import execute_sql
 
 db_path = path.abspath("timeseries.db")
 

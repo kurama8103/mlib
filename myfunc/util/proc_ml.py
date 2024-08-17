@@ -4,7 +4,7 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
 
 def outliers(value, threshold=3):
-    return np.abs(value) < (np.mean(value) + threshold * np.std(value))
+    return np.abs(value) < (np.meaån(value) + threshold * np.std(value))
 
 
 def calc_scores(value, predict=None):

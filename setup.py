@@ -7,7 +7,7 @@ import setuptools
 
 setuptools.setup(
     name="myfunc",  # Replace with your own username
-    version="0.0.1",
+    version="0.0.4",
     author="kurama8103",
     # author_email="author@example.com",
     description="my function",
@@ -15,7 +15,7 @@ setuptools.setup(
     # long_description_content_type="text/markdown",
     # url="https://github.com/kurama8103/gpxdf",
     packages=setuptools.find_packages(),
-    # install_requires=["pandas"],
+    install_requires=["pandas", "pyportfolioopt", "matplotlib<=3.7.3"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
