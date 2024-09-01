@@ -57,7 +57,7 @@ def vis_features(X, y, figsize=(8, 12)):
     return fig, f.elbow_value_
 
 
-def viz_model_regression(model, X_train, y_train, X_test, y_test):
+def vis_model_regression(model, X_train, y_train, X_test, y_test):
     from yellowbrick.model_selection import feature_importances
     from yellowbrick.regressor import residuals_plot
 

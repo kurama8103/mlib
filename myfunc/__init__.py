@@ -12,6 +12,8 @@ from .util.utility import (
     load_test_data,
     apply_moving_window,
     apply_moving_window_df,
+    vis_func,
+    vis_func_array,
     )
 from .util.proc_ml import (
     neutralize_series,
@@ -21,7 +23,7 @@ from .util.proc_ml import (
     categoricalize,
     vis_features,
     vis_model_classifier,
-    viz_model_regression,   
+    vis_model_regression,   
 )
 from .util.memory import variable_memory, reduce_mem_usage
 from .util import interger, sort, sqls

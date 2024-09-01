@@ -64,7 +64,6 @@ def load_test_data():
     return df.drop("realgdp", axis=1), df["realgdp"]
 
 
-
 def apply_moving_window(x, func, window: int = 10) -> list:
     from numpy.lib.stride_tricks import sliding_window_view
 
@@ -76,3 +75,38 @@ def apply_moving_window_df(x: pd.DataFrame, func, window: int = 10) -> pd.DataFr
         apply_moving_window(x.values, func=func, window=window),
         index=x.tail(len(x) + 1 - window).index,
     )
+
+
+def vis_func(func, range=10, n=100, plot=True):
+    step = range * 2 / n
+    x = np.arange(-range, range, step=step).round(8)
+    try:
+        y = np.hstack(func(x))
+    except:
+        y = [func(i) for i in x]
+    if plot:
+        plt.plot(x, y)
+    return x, y
+
+
+from myfunc.finance.stochastic import ornstein_uhlenbeck_process
+
+
+def vis_func_array(func, n=100, plot=True):
+    window = (n * 5) // 10
+
+    x_brownian = np.random.randn(n) / 100
+    x_trend = np.arange(n) / n + x_brownian
+    # x_anti_trend = np.exp(-x_trend) + x_brownian
+    _ = ornstein_uhlenbeck_process(100, 100, T=5, M=100, npath=1)
+    x_anti_trend = pd.DataFrame(_).pct_change().dropna().values.reshape(-1)
+    _ = pd.DataFrame(
+        {
+            "f_trend": apply_moving_window(x_trend, func, window),
+            "f_brownian": apply_moving_window(x_brownian, func, window),
+            "f_anti_trend": apply_moving_window(x_anti_trend, func, window),
+        }
+    )
+    if plot:
+        _.plot()
+    return _
