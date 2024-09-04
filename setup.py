@@ -6,7 +6,7 @@ import setuptools
     long_description = fh.read()"""
 
 setuptools.setup(
-    name="myfunc",  # Replace with your own username
+    name="mlib", 
     version="0.0.4",
     author="kurama8103",
     # author_email="author@example.com",

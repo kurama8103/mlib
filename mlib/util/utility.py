@@ -89,7 +89,7 @@ def vis_func(func, range=10, n=100, plot=True):
     return x, y
 
 
-from myfunc.finance.stochastic import ornstein_uhlenbeck_process
+from mlib.finance.stochastic import ornstein_uhlenbeck_process
 
 
 def vis_func_array(func, n=100, plot=True):
