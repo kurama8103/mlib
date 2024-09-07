@@ -2,6 +2,7 @@ __version__ = "0.0.1"
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 from numpy import set_printoptions
 import matplotlib.pyplot as plt
 from seaborn import set_style
@@ -64,9 +65,10 @@ def load_test_data():
     return df.drop("realgdp", axis=1), df["realgdp"]
 
 
-def apply_moving_window(x, func, window: int = 10) -> list:
-    from numpy.lib.stride_tricks import sliding_window_view
+from numpy.lib.stride_tricks import sliding_window_view
 
+
+def apply_moving_window(x, func, window: int = 10) -> list:
     return [func(d) for d in sliding_window_view(x, window)]
 
 
@@ -110,3 +112,8 @@ def vis_func_array(func, n=100, plot=True):
     if plot:
         _.plot()
     return _
+
+
+def autocorr(x):
+    corr = np.correlate(x, x, mode="full")
+    return corr[int(corr.size / 2) :]

@@ -52,7 +52,7 @@ def getBinsFromTrend(molecule, close, span=[3, 10, 1]):
     '''
     線形トレンドのt値の符号からラベルを作成
     - t1: 発見されたトレンドの終了時点
-    -　tVal: 推定トレンド回帰のt値
+    - tVal: 推定トレンド回帰のt値
     - bin: トレンドの符号
     '''
     out = pd.DataFrame(index=molecule, columns=['t1', 'tVal', 'bin'])
@@ -74,7 +74,7 @@ def getBinsFromTrend(molecule, close, span=[3, 10, 1]):
     return out.dropna(subset=['bin'])
 
 
-def deNoisedCorr(eVal, eVec, nFacts):
+def denoisedCorr(eVal, eVec, nFacts):
     eVal_ = np.diag(eVal).copy()
     eVal_[nFacts:] = eVal_[nFacts:].sum()/float(eVal_.shape[0]-nFacts)
     eVal_ = np.diag(eVal_)
