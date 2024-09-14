@@ -57,7 +57,7 @@ def load_test_data():
     from statsmodels.datasets import macrodata
 
     df = macrodata.load()["data"]
-    df.index = pd.date_range("1959-03-31", periods=len(df), freq="QE")
+    df.index = pd.date_range("1959-03-31", periods=len(df), freq="Q")
     df[df.columns.drop(["year", "quarter"])] = (
         df[df.columns.drop(["year", "quarter"])].ffill().pct_change()
     )

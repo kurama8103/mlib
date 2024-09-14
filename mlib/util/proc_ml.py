@@ -44,7 +44,7 @@ def unif(x):
     return (df.rank(method="first") - 0.5) / len(df)
 
 
-def vis_features(X, y, figsize=(8, 12)):
+def vis_features(X, y, figsize=(12, 12)):
     from yellowbrick.features import rank2d, pca_decomposition
     from sklearn.cluster import KMeans
     from yellowbrick.cluster.elbow import kelbow_visualizer
@@ -57,16 +57,18 @@ def vis_features(X, y, figsize=(8, 12)):
     return fig, f.elbow_value_
 
 
-def vis_model_regression(model, X_train, y_train, X_test, y_test):
+def vis_model_regression(model, X_train, y_train, X_test, y_test, return_model=False):
     from yellowbrick.model_selection import feature_importances
     from yellowbrick.regressor import residuals_plot
 
     res = dict()
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 6))
     _ = feature_importances(model, X_train, y_train, show=False, ax=axes[0])
     res["feat_imp"] = dict(zip(_.features_, _.feature_importances_))
     _ = residuals_plot(model, X_train, y_train, X_test, y_test, show=False, ax=axes[1])
     res["r2"] = {"train": _.train_score_, "test": _.test_score_}
+    if return_model:
+        res["model"] = model
     return res
 
 
@@ -79,7 +81,7 @@ def categoricalize(x, n_bins=5):
     return pd.Categorical(_), cls
 
 
-def vis_model_classifier(model, X_train, y_train, X_test, y_test):
+def vis_model_classifier(model, X_train, y_train, X_test, y_test, return_model=False):
     import re
     from yellowbrick.classifier.rocauc import roc_auc
     from yellowbrick.classifier import precision_recall_curve, class_prediction_error
@@ -87,7 +89,7 @@ def vis_model_classifier(model, X_train, y_train, X_test, y_test):
 
     pre = re.sub(r"[^A-Z]", "", str(model)) + "_"
     res = dict()
-    fig, axes = plt.subplots(nrows=5, ncols=1, figsize=(8, 16))
+    fig, axes = plt.subplots(nrows=5, ncols=1, figsize=(12, 12))
     _ = roc_auc(
         model, X_train, y_train, X_test=X_test, y_test=y_test, show=False, ax=axes[0]
     )
@@ -96,12 +98,67 @@ def vis_model_classifier(model, X_train, y_train, X_test, y_test):
         model, X_train, y_train, X_test, y_test, per_class=True, show=False, ax=axes[1]
     )
 
-    res[pre + "pr"] = _.score_
+    res[pre + "prec_recall"] = _.score_
     class_prediction_error(
         model, X_train, y_train, X_test, y_test, show=False, ax=axes[2]
     )
+    confusion_matrix(model, X_train, y_train, X_test, y_test, show=False, ax=axes[3])
     classification_report(
-        model, X_train, y_train, X_test, y_test, support=True, show=False, ax=axes[3]
+        model, X_train, y_train, X_test, y_test, support=True, show=False, ax=axes[4]
     )
-    confusion_matrix(model, X_train, y_train, X_test, y_test, show=False, ax=axes[4])
+    if return_model:
+        res["model"] = model
     return res, fig
+
+
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from lightgbm import LGBMRegressor, LGBMClassifier
+import shap
+
+shap.initjs()
+
+
+def quick_regressor(X, y, return_model=False):
+    models = [
+        LinearRegression(),
+        RandomForestRegressor(max_depth=5),
+    ]
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, shuffle=True
+    )
+    return [
+        vis_model_regression(
+            model, X_train, y_train, X_test, y_test, return_model=return_model
+        )
+        for model in models
+    ]
+
+
+def quick_classifier(X, y, n_class=5, return_model=False):
+    models = [
+        RandomForestClassifier(max_depth=5, criterion="log_loss"),
+        LGBMClassifier(boosting_type="gbdt", max_depth=5, verbose=-1),
+    ]
+
+    y_, cls = categoricalize(y, n_class)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y_, test_size=0.2, shuffle=True
+    )
+    return [
+        vis_model_classifier(
+            model, X_train, y_train, X_test, y_test, return_model=return_model
+        )
+        for model in models
+    ] + [cls]
+
+
+def vis_shap(model, X):
+    print(model)
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer(X)
+
+    shap.summary_plot(shap_values)
+    # shap.summary_plot(shap_values, plot_type="bar")
+    return shap_values

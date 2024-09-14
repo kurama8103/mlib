@@ -23,7 +23,10 @@ from .util.proc_ml import (
     categoricalize,
     vis_features,
     vis_model_classifier,
-    vis_model_regression,   
+    vis_model_regression,
+    quick_classifier,
+    quick_regressor,   
+    vis_shap,
 )
 from .util.memory import variable_memory, reduce_mem_usage
 from .util import interger, sort, sqls
