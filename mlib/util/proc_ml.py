@@ -117,7 +117,7 @@ from sklearn.model_selection import train_test_split
 from lightgbm import LGBMRegressor, LGBMClassifier
 import shap
 
-shap.initjs()
+# shap.initjs()
 
 
 def quick_regressor(X, y, return_model=False):

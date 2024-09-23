@@ -69,7 +69,7 @@ from numpy.lib.stride_tricks import sliding_window_view
 
 
 def apply_moving_window(x, func, window: int = 10) -> list:
-    return [func(d) for d in sliding_window_view(x, window)]
+    return [func(d) for d in sliding_window_view(x, window, axis=0)]
 
 
 def apply_moving_window_df(x: pd.DataFrame, func, window: int = 10) -> pd.DataFrame:
