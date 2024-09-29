@@ -10,6 +10,7 @@ from .util.utility import (
     apply_concat, 
     compare_by_func,
     load_test_data,
+    load_test_data_fred,
     apply_moving_window,
     apply_moving_window_df,
     vis_func,

@@ -68,3 +68,4 @@ def pf_opt_plot(df, res_opt):
         
     pd.DataFrame({k: v['weight'] for k, v in res_opt.items()}).plot.bar()
     return plt.plot()
+    

@@ -64,6 +64,9 @@ def load_test_data():
     df = df.replace([np.inf, -np.inf], np.nan).dropna()
     return df.drop("realgdp", axis=1), df["realgdp"]
 
+import os
+def load_test_data_fred():
+    print(__file__)
 
 from numpy.lib.stride_tricks import sliding_window_view
 

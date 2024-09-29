@@ -1,11 +1,12 @@
-from os import path
+import os
 from sqlite3 import connect
 import investpy
 import pandas as pd
 import quandl
 from mlib.util.sqls import execute_sql
+import pandas_datareader.data as web
 
-db_path = path.abspath("timeseries.db")
+db_path = os.path.abspath("timeseries.db")
 
 
 def get_data_quandl(code, start=None, end=None):
@@ -68,4 +69,30 @@ def get_data_db(db_path="timeseries.db", sql="select * from timeseries"):
     df.index = pd.to_datetime(df.index, format="%Y%m%d")
     df.columns.name = None
     df.index.name = "date"
+    return df
+
+
+def get_indices_fred(
+    path_pickle: str = "fred_indices.pickle", force_download: bool = False
+) -> pd.DataFrame:
+    end = pd.Timestamp.today() + pd.Timedelta(days=0)
+    start = pd.to_datetime("2020-01-01")
+    dic_ticker = {
+        # "S&P500": "SP500",
+        # "NASDAQ_Composit": "NASDAQCOM",
+        # "US_10Y_interest_rate":"REAINTRATREARAT10Y",
+        "USDJPY": "DEXJPUS",
+        "EURUSD": "DEXUSEU",
+        "USDCHY": "DEXCHUS",
+    }
+    if os.path.exists(path_pickle) and not (force_download):
+        print("load")
+        df = pd.read_pickle(path_pickle)
+
+    else:
+        print("download")
+        df = web.DataReader(dic_ticker.values(), "fred", start, end)
+        df.columns = dic_ticker.keys()
+        df.to_pickle(path_pickle)
+
     return df
