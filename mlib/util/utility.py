@@ -1,5 +1,7 @@
 __version__ = "0.0.1"
 
+import csv
+import io
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -64,9 +66,13 @@ def load_test_data():
     df = df.replace([np.inf, -np.inf], np.nan).dropna()
     return df.drop("realgdp", axis=1), df["realgdp"]
 
+
 import os
+
+
 def load_test_data_fred():
     print(__file__)
+
 
 from numpy.lib.stride_tricks import sliding_window_view
 
@@ -120,3 +126,11 @@ def vis_func_array(func, n=100, plot=True):
 def autocorr(x):
     corr = np.correlate(x, x, mode="full")
     return corr[int(corr.size / 2) :]
+
+
+def class_to_csv(class_):
+    f = io.StringIO()
+    writer = csv.DictWriter(f, fieldnames=class_.__dict__.keys())
+    writer.writeheader()
+    writer.writerow(class_.__dict__)
+    return f
